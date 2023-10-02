@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 
 import { Notify } from "notiflix";
 
@@ -6,28 +6,31 @@ import ContactForm from "../ContactForm/ContactForm";
 import Filter from "../Filter/Filter";
 import ContactList from "../ContactList/ContactList";
 
+import { Contact } from "../../types/types";
+
 import css from "./App.module.css";
 
 const LOCAL_KEY = "contacts";
 
 export function App() {
 	const [filter, setFilter] = useState("");
-	const [contacts, setContacts] = useState([]);
+	const [contacts, setContacts] = useState<Array<Contact>>([]);
 
-	let first = useRef(1);
+	const first = useRef(1);
+	const local = localStorage.getItem(LOCAL_KEY);
 
-	const onFilterChange = e => {
+	const onFilterChange = (e: FormEvent<HTMLInputElement>): void => {
 		const { value } = e.currentTarget;
 		setFilter(value);
 	};
 
-	const onDeleteClick = id => {
+	const onDeleteClick = (id: string): void => {
 		Notify.info("Contact has deleted!");
 
 		return setContacts(prev => prev.filter(contact => contact.id !== id));
 	};
 
-	const onContactSave = contactData => {
+	const onContactSave = (contactData: Contact): void => {
 		const hasSameContactName = contacts.some(contact => contact.name === contactData.name);
 
 		if (hasSameContactName) {
@@ -39,12 +42,9 @@ export function App() {
 	};
 
 	useEffect(() => {
-		const localContacts = JSON.parse(localStorage.getItem(LOCAL_KEY));
-		if (localContacts && first.current === 1) {
-			setContacts(localContacts);
-			first.current += 1;
-		}
-	}, []);
+		if (local && first.current === 1) setContacts(JSON.parse(local));
+		first.current += 1;
+	}, [local]);
 
 	useEffect(() => {
 		localStorage.setItem(LOCAL_KEY, JSON.stringify(contacts));

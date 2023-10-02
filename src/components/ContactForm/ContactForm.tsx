@@ -1,11 +1,15 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import { FormEvent, useState } from "react";
 
 import { nanoid } from "nanoid";
 
 import css from "./ContactForm.module.css";
+import { Contact } from "../../types/types";
 
-export default function ContactForm({ onSubmit }) {
+type Props = {
+	onSubmit(contactData: Contact): void;
+};
+
+export default function ContactForm({ onSubmit }: Props) {
 	const [name, setName] = useState("");
 	const [number, setNumber] = useState("");
 
@@ -14,11 +18,11 @@ export default function ContactForm({ onSubmit }) {
 		setNumber("");
 	};
 
-	const onInputChange = e => {
+	const onInputChange = (e: FormEvent<HTMLInputElement>) => {
 		const { name, value } = e.currentTarget;
 
 		switch (name) {
-			case "name":
+			case "contactName":
 				setName(value);
 				break;
 
@@ -31,7 +35,7 @@ export default function ContactForm({ onSubmit }) {
 		}
 	};
 
-	const onFormSubmit = e => {
+	const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const form = e.currentTarget;
@@ -39,7 +43,7 @@ export default function ContactForm({ onSubmit }) {
 		resetState();
 
 		return onSubmit({
-			name: form.name.value.trim(),
+			name: form.contactName.value.trim(),
 			number: form.number.value,
 			id: nanoid(),
 		});
@@ -54,7 +58,7 @@ export default function ContactForm({ onSubmit }) {
 					onChange={onInputChange}
 					className={css.name}
 					type="text"
-					name="name"
+					name="contactName"
 					pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
 					title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
 					autoComplete="off"
@@ -81,7 +85,3 @@ export default function ContactForm({ onSubmit }) {
 		</form>
 	);
 }
-
-ContactForm.propTypes = {
-	onSubmit: PropTypes.func.isRequired,
-};
